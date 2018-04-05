@@ -73,6 +73,27 @@ Preparing transaction: done
 Verifying transaction: done
 Executing transaction: done
 
+
+#illumiprocessor isn't working so I removed it and reinstalled it (used force to only remove this package)
+conda remove illumiprocessor --force
+conda install illumiprocessor #upgrades from 2.0.7 to 2.0.8
+
+# and install Java 8 (I have 10 installed)
+brew cask install caskroom/versions/java8
+#now install jenv to manage java versions, add init line to .bash_profile as suggested here https://gist.github.com/tomysmile/a9a7aee85ff73454bd57e198ad90e614
+brew install jenv
+#find paths to java installations
+/usr/libexec/java_home -V
+# add java8 to jenv
+jenv add /Library/Java/JavaVirtualMachines/jdk1.8.0_162.jdk/Contents/Home
+jenv versions
+#set java version to 8
+jenv local 1.8.0.162
+
+#So I fixed the lines 28 and 33 in #~/anaconda2/envs/phyluce/lib/python2.7/site-packages/illumiprocessor/cli/main.py
+
+#to add "anaconda2" in the paths there (which originally just had "anaconda")
+
 ```
 
 3. Rename directories to reflect the sample
@@ -88,5 +109,44 @@ for dir in */
     done
   done
   "$dir"*.gz
+```
+
+4. Copy all files into phyluce directory
+
+```{bash, evaluate=F}
+for dir in */; do
+cd $dir
+  for f in *.gz; do
+  cp $f ../phyluce/$f
+  done
+cd ..
+done
+
+```
+
+5. Cat together two individuals that were sequenced twice (once when I thought I wasn't going to include most S. ovalis in the run)
+
+```{bash, evaluate=F}
+cat sebova-sbc-R010965_S23_L001_R1_001.fastq.gz sebova-sbc-R010965_S44_L001_R1_001.fastq.gz > sebova-sbc-R010965_S2344_L001_R1_001.fastq.gz
+
+
+cat sebova-sbc-R010965_S23_L001_R2_001.fastq.gz sebova-sbc-R010965_S44_L001_R2_001.fastq.gz > sebova-sbc-R010965_S2344_L001_R2_001.fastq.gz
+
+
+cat sebova-sbc-R010966_S24_L001_R1_001.fastq.gz sebova-sbc-R010966_S45_L001_R1_001.fastq.gz > sebova-sbc-R010966_S2445_L001_R1_001.fastq.gz
+
+
+cat sebova-sbc-R010966_S24_L001_R2_001.fastq.gz sebova-sbc-R010966_S45_L001_R2_001.fastq.gz > sebova-sbc-R010966_S2445_L001_R2_001.fastq.gz
+
+
+rm sebova-sbc-R010965_S23_L001_R1_001.fastq.gz sebova-sbc-R010965_S44_L001_R1_001.fastq.gz
+rm sebova-sbc-R010965_S23_L001_R2_001.fastq.gz sebova-sbc-R010965_S44_L001_R2_001.fastq.gz
+rm sebova-sbc-R010966_S24_L001_R1_001.fastq.gz sebova-sbc-R010966_S45_L001_R1_001.fastq.gz
+rm sebova-sbc-R010966_S24_L001_R2_001.fastq.gz sebova-sbc-R010966_S45_L001_R2_001.fastq.gz
+```
+
+4. Run illumiprocessor to trim adapters and low quality bases
+```{bash, evaluate=F}
+illumiprocessor --input ./ --output uce-clean --config illumiprocessor_UCE2_config.txt --cores 4
 ```
 
