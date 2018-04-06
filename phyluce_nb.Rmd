@@ -5,6 +5,8 @@ output: html_notebook
 
 This notebook will document my work with the package [Phyluce](http://phyluce.readthedocs.io/en/latest/index.html) by Brant Faircloth.
 
+
+# Installation and Pre-Processing
 1. Installed [Anaconda with Python 2.7](https://docs.anaconda.com/anaconda/install/)
 
 2. Installed Phyluce (used extra advice from [here](https://github.com/faircloth-lab/phyluce/issues/57) to create a new environment)
@@ -145,8 +147,187 @@ rm sebova-sbc-R010966_S24_L001_R1_001.fastq.gz sebova-sbc-R010966_S45_L001_R1_00
 rm sebova-sbc-R010966_S24_L001_R2_001.fastq.gz sebova-sbc-R010966_S45_L001_R2_001.fastq.gz
 ```
 
-4. Run illumiprocessor to trim adapters and low quality bases
+# Illumiprocessor
+
+4. Create configuration file (illumiprocessor_UCE2_config.txt)
+5. Run [illumiprocessor](http://illumiprocessor.readthedocs.io/en/latest/usage.html) to trim adapters and low quality bases
 ```{bash, evaluate=F}
 illumiprocessor --input ./ --output uce-clean --config illumiprocessor_UCE2_config.txt --cores 4
+
+2018-04-04 18:19:59,968 - illumiprocessor - INFO - ==================== Starting illumiprocessor ===================
+2018-04-04 18:19:59,990 - illumiprocessor - INFO - Version: 2.0.6
+2018-04-04 18:19:59,990 - illumiprocessor - INFO - Argument --config: illumiprocessor_UCE2_config.txt
+2018-04-04 18:19:59,990 - illumiprocessor - INFO - Argument --cores: 4
+2018-04-04 18:19:59,990 - illumiprocessor - INFO - Argument --input: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --log_path: None
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --min_len: 40
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --no_merge: False
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --output: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/uce-clean
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --phred: phred33
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --r1_pattern: None
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --r2_pattern: None
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --se: False
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --trimmomatic: /Users/cran5048/anaconda2/envs/phyluce/jar/trimmomatic.jar
+2018-04-04 18:19:59,991 - illumiprocessor - INFO - Argument --verbosity: INFO
+2018-04-04 18:20:00,410 - illumiprocessor - INFO - Trimming samples with Trimmomatic
+Running......................................................................
+2018-04-04 18:26:09,219 - illumiprocessor - INFO - =================== Completed illumiprocessor ===================
+
 ```
 
+# Assembly
+
+6. Create configuration file (assembly_conf.txt)
+  - make this using the sample sheet in Excel to creat the paths. Need to use absolute paths to each directory
+7. Run velvet
+```{bash, evaluate=F}
+mkdir assembly
+# make a directory for log files
+mkdir log
+# run the assembly
+phyluce_assembly_assemblo_velvet \
+    --config assembly_conf.txt \
+    --output ~/Basespace/UCE_Fish_2/phyluce/assembly \
+    --kmer 35 \
+    --subfolder split-adapter-quality-trimmed \
+    --cores 4 \
+    --clean \
+    --log-path log
+
+```
+This took 3-4 hours to run
+# Finding UCEs
+8. Use LastZ to find matches to UCE probes among contigs - place them in an sql database
+```{bash, evaluate=F}
+mkdir FindUCE_log
+# match contigs to probes
+phyluce_assembly_match_contigs_to_probes \
+    --contigs ./assembly/contigs \
+    --probes fish-uce-500-probes.fasta \
+    --output ./findUCE \
+    --log-path FindUCE_log
+```
+This ran pretty quickly - 30 mins?
+
+9. Check out the database
+```{bash, evaluate=F}
+(phyluce) M053-303-26932:FindUCE cran5048$ sqlite3 probe.matches.sqlite
+SQLite version 3.22.0 2018-01-22 18:45:57
+Enter ".help" for usage hints.
+```
+
+```{r}
+library(DBI)
+db<- dbConnect(RSQLite::SQLite(),dbname="~/Basespace/UCE_Fish_2/phyluce/FindUCE/probe.matches.sqlite")
+
+```
+
+```{sql connection=db, output.var="allUCEs"}
+
+SELECT * FROM matches;
+
+
+
+
+```
+
+```{r}
+rownames(allUCEs)<-allUCEs$uce
+
+sebgoo<-allUCEs[,grep("sebgoo",names(allUCEs))]
+
+sebova<-allUCEs[,grep("sebova",names(allUCEs))]
+
+emblat<-allUCEs[,grep("emblat",names(allUCEs))]
+
+embjac<-allUCEs[,grep("embjac",names(allUCEs))]
+
+which(complete.cases(sebgoo))
+which(complete.cases(sebova))
+which(complete.cases(embjac))
+which(complete.cases(emblat))
+
+sebgoo<-apply(sebgoo[,1:20], FUN=as.numeric,MARGIN=2)
+sebgoo_sum<-rowSums(sebgoo,na.rm=T)
+names(sebgoo_sum)<-rownames(allUCEs)
+sort(sebgoo_sum)
+
+sebova<-apply(sebova[,1:17], FUN=as.numeric,MARGIN=2)
+sebova_sum<-rowSums(sebova,na.rm=T)
+names(sebova_sum)<-rownames(allUCEs)
+sort(sebova_sum)
+
+embjac<-apply(embjac[,1:17], FUN=as.numeric,MARGIN=2)
+embjac_sum<-rowSums(embjac,na.rm=T)
+names(embjac_sum)<-rownames(allUCEs)
+sort(embjac_sum)
+
+emblat<-apply(emblat[,1:15], FUN=as.numeric,MARGIN=2)
+emblat_sum<-rowSums(emblat,na.rm=T)
+names(emblat_sum)<-rownames(allUCEs)
+sort(emblat_sum)
+
+```
+So there were `length(which(complete.cases(allUCEs)))` UCEs that got enriched in all samples :-( but not surprising as there were 72 taxa.
+
+So I might want to back up and have it do databases for each species. Or actually I can subselect taxon sets below. But I will plow ahead and use all data for now
+
+10. Make a list of all taxa and UCEs that I can get for the whole dataset (this is just a test prior to running the next steps)
+```{bash, evaluate=F}
+phyluce_assembly_get_match_counts \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE/probe.matches.sqlite \
+    --taxon-list-config /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/all_taxa_sets_conf.txt\
+    --taxon-group 'all_taxa_dataset' \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa/alltaxa_dataset1_conf.txt \
+    --incomplete-matrix
+    
+```
+
+11. Extract all the matching data into a FASTA
+```{bash, evaluate=F}
+phyluce_assembly_get_fastas_from_match_counts \
+    --contigs /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/assembly/contigs/ \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE/probe.matches.sqlite \
+    --match-count-output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa/alltaxa_dataset1_conf.txt \
+    --incomplete-matrix /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa/alltaxa_dataset1.incomplete \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa/alltaxa_dataset1.fasta
+    
+```
+
+12. Align the FASTA Reads
+```{bash, evaluate=F}
+
+phyluce_align_seqcap_align \
+    --fasta /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa/alltaxa_dataset1.fasta \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa/alignments \
+    --taxa 70 \
+    --aligner mafft \
+    --cores 4 \
+    --proportion 0.05 \
+    --threshold 0.05 \
+    --incomplete-matrix \
+    --max-divergence 0.05 \
+    --min-length 50 \
+```
+
+After playing with the data I set a minimum length of 50, a proportion of 0.1 and max divergence of 0.05 and found 3 loci with intraspecific variation
+51 (sebova), 1169 (sebgoo, sebova), 1296-(sebgoo)
+
+# Backing up to Assembly
+
+7. Run velvet with larger kmer value
+```{bash, evaluate=F}
+mkdir assembly
+# make a directory for log files
+mkdir log
+# run the assembly
+phyluce_assembly_assemblo_velvet \
+    --config assembly_conf.txt \
+    --output ~/Basespace/UCE_Fish_2/phyluce/assembly \
+    --kmer 65 \
+    --subfolder split-adapter-quality-trimmed \
+    --cores 4 \
+    --clean \
+    --log-path log
+
+```
