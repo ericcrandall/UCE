@@ -331,3 +331,242 @@ phyluce_assembly_assemblo_velvet \
     --log-path log
 
 ```
+
+8. Use LastZ to find matches to UCE probes among contigs - place them in an sql database
+```{bash, evaluate=F}
+mkdir FindUCE_log
+# match contigs to probes
+phyluce_assembly_match_contigs_to_probes \
+    --contigs ./assembly/contigs \
+    --probes fish-uce-500-probes.fasta \
+    --output ./findUCE_k65 \
+    --log-path FindUCE_log_k65
+```
+
+
+10. Make a list of all taxa and UCEs that I can get for the whole dataset (this is just a test prior to running the next steps)
+```{bash, evaluate=F}
+phyluce_assembly_get_match_counts \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --taxon-list-config /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/all_taxa_sets_conf.txt\
+    --taxon-group 'all_taxa_dataset' \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa_k65/alltaxa_dataset1_conf.txt \
+    --incomplete-matrix
+    
+```
+
+11. Extract all the matching data into a FASTA
+```{bash, evaluate=F}
+phyluce_assembly_get_fastas_from_match_counts \
+    --contigs /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/assembly_k65/contigs/ \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --match-count-output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa_k65/alltaxa_dataset1_conf.txt \
+    --incomplete-matrix /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa_k65/alltaxa_dataset1.incomplete \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa_k65/alltaxa_dataset1.fasta
+    
+```
+
+
+12. Align the FASTA Reads
+```{bash, evaluate=F}
+
+phyluce_align_seqcap_align \
+    --fasta /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa_k65/alltaxa_dataset1.fasta \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/alltaxa_k65/alignments \
+    --taxa 70 \
+    --aligner mafft \
+    --cores 4 \
+    --proportion 0.75 \
+    --incomplete-matrix \
+    --max-divergence 0.05 \
+    --min-length 50 \
+```
+
+UCE-1020 UCE34 UCE103 UCE109 (Seb) UCE129 (Seb) UCE167 (Seb) UCE245 (Seb) UCE267 (Seb) UCE 307 (Seb) UCE 344( Sebova) UCE 418 (sebova) UCE 431 (Sebgoo) UCE 461 (Sebgoo) UCE377 (Sebova)
+
+
+# Breaking it down by species
+10. Make a list of all taxa and UCEs that I can get for the whole dataset (this is just a test prior to running the next steps)
+```{bash, evaluate=F}
+phyluce_assembly_get_match_counts \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --taxon-list-config /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/all_taxa_sets_conf.txt\
+    --taxon-group 'sebgoo' \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/sebgoo_dataset1_conf.txt \
+    --incomplete-matrix
+    
+    
+    phyluce_assembly_get_match_counts \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --taxon-list-config /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/all_taxa_sets_conf.txt\
+    --taxon-group 'sebova' \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/sebova_dataset1_conf.txt \
+    --incomplete-matrix
+    
+    phyluce_assembly_get_match_counts \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --taxon-list-config /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/all_taxa_sets_conf.txt\
+    --taxon-group 'emblat' \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/emblat/emblat_dataset1_conf.txt \
+    --incomplete-matrix
+    
+    phyluce_assembly_get_match_counts \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --taxon-list-config /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/all_taxa_sets_conf.txt\
+    --taxon-group 'embjac' \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/embjac_dataset1_conf.txt \
+    --incomplete-matrix
+    
+```
+
+## Sebastes Ovalis
+11. Extract all the matching data into a FASTA
+```{bash, evaluate=F}
+phyluce_assembly_get_fastas_from_match_counts \
+    --contigs /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/assembly_k65/contigs/ \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --match-count-output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/sebova_dataset1_conf.txt \
+    --incomplete-matrix /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/sebova_dataset1.incomplete \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/sebova_dataset1.fasta
+    
+```
+
+Align the FASTA Reads
+```{bash, evaluate=F}
+
+phyluce_align_seqcap_align \
+    --fasta /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/sebova_dataset1.fasta \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/alignments \
+    --taxa 17 \
+    --aligner mafft \
+    --cores 4 \
+    --proportion 0.75 \
+    --incomplete-matrix \
+    --max-divergence 0.03 \
+    --min-length 50
+```
+
+
+
+Get summary stats
+```{bash, evaluate=F}
+phyluce_align_get_align_summary_data \
+    --alignments ./sebova/alignments \
+    --cores 4 \
+    --log-path log
+    
+    2018-04-07 14:29:57,493 - phyluce_align_get_align_summary_data - INFO - ========= Starting phyluce_align_get_align_summary_data =========
+2018-04-07 14:29:57,493 - phyluce_align_get_align_summary_data - INFO - Version: 1.5.0
+2018-04-07 14:29:57,493 - phyluce_align_get_align_summary_data - INFO - Argument --alignments: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/alignments
+2018-04-07 14:29:57,493 - phyluce_align_get_align_summary_data - INFO - Argument --cores: 4
+2018-04-07 14:29:57,494 - phyluce_align_get_align_summary_data - INFO - Argument --input_format: nexus
+2018-04-07 14:29:57,494 - phyluce_align_get_align_summary_data - INFO - Argument --log_path: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/log
+2018-04-07 14:29:57,494 - phyluce_align_get_align_summary_data - INFO - Argument --show_taxon_counts: False
+2018-04-07 14:29:57,494 - phyluce_align_get_align_summary_data - INFO - Argument --verbosity: INFO
+2018-04-07 14:29:57,494 - phyluce_align_get_align_summary_data - INFO - Getting alignment files
+2018-04-07 14:29:57,565 - phyluce_align_get_align_summary_data - INFO - Computing summary statistics using 4 cores
+2018-04-07 14:29:58,807 - phyluce_align_get_align_summary_data - INFO - ----------------------- Alignment summary -----------------------
+2018-04-07 14:29:58,807 - phyluce_align_get_align_summary_data - INFO - [Alignments] loci:	477
+2018-04-07 14:29:58,807 - phyluce_align_get_align_summary_data - INFO - [Alignments] length:	79,651
+2018-04-07 14:29:58,807 - phyluce_align_get_align_summary_data - INFO - [Alignments] mean:	166.98
+2018-04-07 14:29:58,807 - phyluce_align_get_align_summary_data - INFO - [Alignments] 95% CI:	5.94
+2018-04-07 14:29:58,807 - phyluce_align_get_align_summary_data - INFO - [Alignments] min:	55
+2018-04-07 14:29:58,807 - phyluce_align_get_align_summary_data - INFO - [Alignments] max:	484
+2018-04-07 14:29:58,808 - phyluce_align_get_align_summary_data - INFO - ------------------------- Taxon summary -------------------------
+2018-04-07 14:29:58,808 - phyluce_align_get_align_summary_data - INFO - [Taxa] mean:		7.87
+2018-04-07 14:29:58,808 - phyluce_align_get_align_summary_data - INFO - [Taxa] 95% CI:	0.21
+2018-04-07 14:29:58,808 - phyluce_align_get_align_summary_data - INFO - [Taxa] min:		3
+2018-04-07 14:29:58,808 - phyluce_align_get_align_summary_data - INFO - [Taxa] max:		15
+2018-04-07 14:29:58,809 - phyluce_align_get_align_summary_data - INFO - ----------------- Missing data from trim summary ----------------
+2018-04-07 14:29:58,809 - phyluce_align_get_align_summary_data - INFO - [Missing] mean:	10.06
+2018-04-07 14:29:58,809 - phyluce_align_get_align_summary_data - INFO - [Missing] 95% CI:	0.36
+2018-04-07 14:29:58,809 - phyluce_align_get_align_summary_data - INFO - [Missing] min:	0.84
+2018-04-07 14:29:58,809 - phyluce_align_get_align_summary_data - INFO - [Missing] max:	22.46
+2018-04-07 14:29:58,814 - phyluce_align_get_align_summary_data - INFO - -------------------- Character count summary --------------------
+2018-04-07 14:29:58,814 - phyluce_align_get_align_summary_data - INFO - [All characters]	613,544
+2018-04-07 14:29:58,814 - phyluce_align_get_align_summary_data - INFO - [Nucleotides]		546,272
+2018-04-07 14:29:58,814 - phyluce_align_get_align_summary_data - INFO - ---------------- Data matrix completeness summary ---------------
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 50%]		267 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 55%]		180 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 60%]		180 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 65%]		119 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 70%]		68 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 75%]		29 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 80%]		29 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 85%]		9 alignments
+2018-04-07 14:29:58,815 - phyluce_align_get_align_summary_data - INFO - [Matrix 90%]		5 alignments
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - [Matrix 95%]		1 alignments
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - ------------------------ Character counts -----------------------
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - [Characters] '-' is present 2,617 times
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - [Characters] '?' is present 64,655 times
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - [Characters] 'A' is present 148,350 times
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - [Characters] 'C' is present 124,944 times
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - [Characters] 'G' is present 124,453 times
+2018-04-07 14:29:58,816 - phyluce_align_get_align_summary_data - INFO - [Characters] 'T' is present 148,525 times
+2018-04-07 14:29:58,817 - phyluce_align_get_align_summary_data - INFO - ========= Completed phyluce_align_get_align_summary_data ========
+
+
+```
+
+```{bash, evaluate=F}
+phyluce_align_explode_alignments \
+    --alignments ./sebova/alignments \
+    --output ./sebova/exploded-fastas \
+    --input-format nexus \
+    --by-taxon
+    
+```
+
+Create a phasing config file as described [here](http://phyluce.readthedocs.io/en/latest/tutorial-two.html)
+
+`phyluce_snp_bwa_multiple_align` was not included in the distribution. I copied it from [here](https://github.com/faircloth-lab/phyluce/blob/master/bin/snps/phyluce_snp_bwa_multiple_align)
+```{bash, evaluate=F}
+phyluce_snp_bwa_multiple_align \
+    --config ./sebova/sebova_phasing_conf.txt \
+    --output ./sebova/mapping \
+    --subfolder split-adapter-quality-trimmed \
+    --log-path ./sebova/bwa_log \
+    --cores 4
+    
+```
+
+To get this to work, I had to clone the latest git version of phyluce into my github directory and add
+it to my python path.
+```{bash, evaluate=F}
+export PYTHONPATH=$HOME/github/phyluce
+
+python ~/github/phyluce/bin/snps/phyluce_snp_phase_uces \
+    --config ./sebova/sebova_phasing_conf.txt \
+    --bams ./sebova/mapping \
+    --output ./sebova/phased_reads
+```
+
+Going off on my own now, trying to call SNPs in the mapped bam files. Following guidance from [here](http://samtools.sourceforge.net/mpileup.shtml).
+
+```{bash, evaluate=F}
+(phyluce) M053-303-26932:mapping cran5048$ pwd
+/Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/mapping
+(phyluce) M053-303-26932:mapping cran5048$ find . -name "*.bam" -exec cp {} ./bams \;
+
+#Following guidance from 
+#index the fasta file at the top of the sebova directory
+(phyluce) M053-303-26932:sebova cran5048$ pwd
+/Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova
+(phyluce) M053-303-26932:sebova cran5048$ samtools faidx
+Usage: faidx <in.fasta> [<reg> [...]]
+(phyluce) M053-303-26932:sebova cran5048$ samtools faidx 
+.DS_Store                   exploded-fastas/            sebova_dataset1.fasta       sebova_phasing_conf.txt
+alignments/                 mapping/                    sebova_dataset1.incomplete  
+bwa_log/                    phased_reads/               sebova_dataset1_conf.txt    
+(phyluce) M053-303-26932:sebova cran5048$ samtools faidx sebova_dataset1.fasta
+
+#use mpileup to compute likelihood of each genotype
+(phyluce) M053-303-26932:sebova cran5048$ cd mapping
+(phyluce) M053-303-26932:mapping cran5048$ cd bams
+(phyluce) M053-303-26932:bams cran5048$ samtools mpileup -uf ../../sebova_dataset1.fasta *.bam | bcftools view -bvcg - > var.raw.bcf
+[mpileup] 17 samples in 17 input files
+<mpileup> Set max per-file depth to 470
+[afs] 0:6361.738 1:634.648 2:644.429 3:656.019 4:667.827 5:679.541 6:691.061 7:702.351 8:713.395 9:724.189 10:734.735 11:745.037 12:755.103 13:764.940 14:774.556 15:783.963 16:793.170 17:802.188 18:811.029 19:819.704 20:828.226 21:836.607 22:844.859 23:852.995 24:861.028 25:868.971 26:876.836 27:884.638 28:892.388 29:900.100 30:907.787 31:915.461 32:923.134 33:930.819 34:938.527
+
+#call the SNPs
+(phyluce) M053-303-26932:bams cran5048$ bcftools view var.raw.bcf | vcfutils.pl varFilter -D100 > var.flt.vcf
