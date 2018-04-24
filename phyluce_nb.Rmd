@@ -541,12 +541,14 @@ python ~/github/phyluce/bin/snps/phyluce_snp_phase_uces \
     --output ./sebova/phased_reads
 ```
 
+### Samtools
 Going off on my own now, trying to call SNPs in the mapped bam files. Following guidance from [here](http://samtools.sourceforge.net/mpileup.shtml).
 
 ```{bash, evaluate=F}
 (phyluce) M053-303-26932:mapping cran5048$ pwd
 /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebova/mapping
 (phyluce) M053-303-26932:mapping cran5048$ find . -name "*.bam" -exec cp {} ./bams \;
+(phyluce) M053-303-26932:mapping cran5048$ find . -name "*.bai" -exec cp {} ./bams \;
 
 #Following guidance from 
 #index the fasta file at the top of the sebova directory
@@ -563,10 +565,75 @@ bwa_log/                    phased_reads/               sebova_dataset1_conf.txt
 #use mpileup to compute likelihood of each genotype
 (phyluce) M053-303-26932:sebova cran5048$ cd mapping
 (phyluce) M053-303-26932:mapping cran5048$ cd bams
-(phyluce) M053-303-26932:bams cran5048$ samtools mpileup -uf ../../sebova_dataset1.fasta *.bam | bcftools view -bvcg - > var.raw.bcf
+(phyluce) M053-303-26932:bams cran5048$ samtools mpileup -uf ../../sebova_dataset1.fasta *.bam | bcftools view -bvcg - > var.raw3.bcf
 [mpileup] 17 samples in 17 input files
 <mpileup> Set max per-file depth to 470
 [afs] 0:6361.738 1:634.648 2:644.429 3:656.019 4:667.827 5:679.541 6:691.061 7:702.351 8:713.395 9:724.189 10:734.735 11:745.037 12:755.103 13:764.940 14:774.556 15:783.963 16:793.170 17:802.188 18:811.029 19:819.704 20:828.226 21:836.607 22:844.859 23:852.995 24:861.028 25:868.971 26:876.836 27:884.638 28:892.388 29:900.100 30:907.787 31:915.461 32:923.134 33:930.819 34:938.527
 
 #call the SNPs
-(phyluce) M053-303-26932:bams cran5048$ bcftools view var.raw.bcf | vcfutils.pl varFilter -D100 > var.flt.vcf
+(phyluce) M053-303-26932:bams cran5048$ bcftools view var.raw3.bcf | vcfutils.pl varFilter -d5  -D100 > var.flt3.vcf
+
+````
+
+This wasn't working - it was calling a SNP for virtually every position of the alignment. I think I am using an incorrect reference fasta for SNP calling. The .bam files were aligned against sample-specific references, so that is technically the reference that the SNPs need to be called against. Instead, I will use this other `bwa` alignment script that I found in phyluce to align against a single reference, that I created by loading all the nexus files from the trimming step into Geneious and exporting consensus sequences.
+
+```{bash, evaluate=F}
+phyluce_snp_bwa_align \
+    --config ./sebova/sebova_phasing_conf2.txt \
+    --output ./sebova/mapping2 \
+    --subfolder split-adapter-quality-trimmed \
+    --log-path ./sebova/bwa_log \
+    --cores 4
+    
+    
+    
+(phyluce) M053-303-26932:mapping2 cran5048$ mkdir bams
+(phyluce) M053-303-26932:mapping2 cran5048$ find . -name "*.bam" -exec cp {} ./bams \;
+(phyluce) M053-303-26932:mapping2 cran5048$ cd bams
+
+for bam in *.bam
+do
+samtools index $bam
+done
+
+# mapping didn't work on R010970 for some reason
+
+samtools faidx ../../contigs_consensus.fasta
+
+(phyluce) M053-303-26932:bams cran5048$ samtools mpileup -uf ../../contigs_consensus.fasta *.bam | bcftools view -bvcgI  - > var.raw4.bcf
+[mpileup] 17 samples in 17 input files
+<mpileup> Set max per-file depth to 470
+[afs] 0:1401.204 1:36.449 2:24.606 3:16.974 4:12.449 5:9.728 6:7.988 7:6.800 8:5.942 9:5.289 10:4.767 11:4.334 12:3.971 13:3.672 14:3.424 15:3.209 16:3.007 17:2.797 18:2.575 19:2.346 20:2.124 21:1.923 22:1.751 23:1.609 24:1.497 25:1.412 26:1.354 27:1.326 28:1.333 29:1.385 30:1.501 31:1.721 32:2.134 33:2.923 34:4.475
+
+
+ bcftools view var.raw4.bcf | vcfutils.pl varFilter -d5 -Q30 -D100 > var.flt4.vcf
+ 
+ 
+(phyluce) M053-303-26932:bams cran5048$ phyluce_snp_convert_vcf_to_structure --input var.flt4.vcf --output sebova_structure.txt
+Working.
+Data contain 17 individuals and 91 loci output to sebova_structure.txt.
+ 
+```
+
+This created a vcf file with credible SNPs! Although many of the SNPs seem to have an excess of heterozygotes...
+
+```{r}
+library(pegas)
+
+
+
+
+#sebova<-read.vcf("~/BaseSpace/UCE_Fish_2/phyluce/sebova/mapping2/bams/var.flt4.vcf")
+  sebova<-read.structure("~/BaseSpace/UCE_Fish_2/phyluce/sebova/mapping2/bams/sebova_structure.stru")
+
+```
+
+
+## GATK
+
+```{bash, evaluate=F}
+
+gatk  HaplotypeCaller \
+      -R ../../contigs_consensus.fasta \
+      -I sebova_cordell_R010969-CL-RG-MD-M.bam \
+      -O test.g.vcf \
