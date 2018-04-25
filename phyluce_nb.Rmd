@@ -619,17 +619,17 @@ This created a vcf file with credible SNPs! Although many of the SNPs seem to ha
 
 ```{r}
 library(pegas)
-
+library(adegenet)
 
 
 
 #sebova<-read.vcf("~/BaseSpace/UCE_Fish_2/phyluce/sebova/mapping2/bams/var.flt4.vcf")
-  sebova<-read.structure("~/BaseSpace/UCE_Fish_2/phyluce/sebova/mapping2/bams/sebova_structure.stru")
+  sebova<-read.genepop("~/BaseSpace/UCE_Fish_2/phyluce/sebova/mapping2/bams/sebova.gen",ncode = 3)
 
 ```
 
 
-## GATK
+### GATK
 
 ```{bash, evaluate=F}
 
@@ -637,3 +637,380 @@ gatk  HaplotypeCaller \
       -R ../../contigs_consensus.fasta \
       -I sebova_cordell_R010969-CL-RG-MD-M.bam \
       -O test.g.vcf \
+```
+
+
+
+## Sebastes goodei
+11. Extract all the matching data into a FASTA
+```{bash, evaluate=F}
+phyluce_assembly_get_fastas_from_match_counts \
+    --contigs /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/assembly_k65/contigs/ \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --match-count-output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/sebgoo_dataset1_conf.txt \
+    --incomplete-matrix /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/sebgoo_dataset1.incomplete\
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/sebgoo_dataset1.fasta
+    
+```
+
+Align the FASTA Reads
+```{bash, evaluate=F}
+
+phyluce_align_seqcap_align \
+    --fasta /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/sebgoo_dataset1.fasta \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/alignments \
+    --taxa 17 \
+    --aligner mafft \
+    --cores 4 \
+    --proportion 0.75 \
+    --incomplete-matrix \
+    --max-divergence 0.03 \
+    --min-length 50
+    
+[WARNING] Output directory exists, REMOVE [Y/n]? Y
+2018-04-24 13:49:11,303 - phyluce_align_seqcap_align - INFO - ============== Starting phyluce_align_seqcap_align ==============
+2018-04-24 13:49:11,320 - phyluce_align_seqcap_align - INFO - Version: 1.5.0
+2018-04-24 13:49:11,320 - phyluce_align_seqcap_align - INFO - Argument --aligner: mafft
+2018-04-24 13:49:11,320 - phyluce_align_seqcap_align - INFO - Argument --ambiguous: False
+2018-04-24 13:49:11,320 - phyluce_align_seqcap_align - INFO - Argument --cores: 4
+2018-04-24 13:49:11,320 - phyluce_align_seqcap_align - INFO - Argument --fasta: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/sebgoo_dataset1.fasta
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --log_path: None
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --max_divergence: 0.03
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --min_length: 50
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --no_trim: False
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --notstrict: True
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --output: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/alignments
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --output_format: nexus
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --proportion: 0.75
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --taxa: 17
+2018-04-24 13:49:11,321 - phyluce_align_seqcap_align - INFO - Argument --threshold: 0.65
+2018-04-24 13:49:11,322 - phyluce_align_seqcap_align - INFO - Argument --verbosity: INFO
+2018-04-24 13:49:11,322 - phyluce_align_seqcap_align - INFO - Argument --window: 20
+2018-04-24 13:49:11,322 - phyluce_align_seqcap_align - INFO - Building the locus dictionary
+2018-04-24 13:49:11,322 - phyluce_align_seqcap_align - INFO - Removing ALL sequences with ambiguous bases...
+2018-04-24 13:49:11,810 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-136. Too few taxa (N < 3).
+2018-04-24 13:49:11,810 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-1048. Too few taxa (N < 3).
+2018-04-24 13:49:11,810 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-63. Too few taxa (N < 3).
+2018-04-24 13:49:11,813 - phyluce_align_seqcap_align - INFO - Aligning with MAFFT
+2018-04-24 13:49:11,814 - phyluce_align_seqcap_align - INFO - Alignment begins. 'X' indicates dropped alignments (these are reported after alignment)
+...........X...........................................X..X.......................................X...X........X...............X.........X......X...X.........................................................................................X.........................................X...................X.......X..............................................................X.....................X...........X...................X..................................X........................X..........
+2018-04-24 13:49:55,942 - phyluce_align_seqcap_align - INFO - Alignment ends
+2018-04-24 13:49:55,942 - phyluce_align_seqcap_align - INFO - Writing output files
+2018-04-24 13:49:55,949 - phyluce_align_seqcap_align - WARNING - DROPPED uce-374 from output
+2018-04-24 13:49:55,961 - phyluce_align_seqcap_align - WARNING - DROPPED uce-76 from output
+2018-04-24 13:49:55,967 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1147 from output
+2018-04-24 13:49:55,992 - phyluce_align_seqcap_align - WARNING - DROPPED uce-685 from output
+2018-04-24 13:49:55,992 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1188 from output
+2018-04-24 13:49:56,012 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1115 from output
+2018-04-24 13:49:56,015 - phyluce_align_seqcap_align - WARNING - DROPPED uce-612 from output
+2018-04-24 13:49:56,030 - phyluce_align_seqcap_align - WARNING - DROPPED uce-369 from output
+2018-04-24 13:49:56,050 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1012 from output
+2018-04-24 13:49:56,072 - phyluce_align_seqcap_align - WARNING - DROPPED uce-256 from output
+2018-04-24 13:49:56,072 - phyluce_align_seqcap_align - WARNING - DROPPED uce-319 from output
+2018-04-24 13:49:56,115 - phyluce_align_seqcap_align - WARNING - DROPPED uce-412 from output
+2018-04-24 13:49:56,147 - phyluce_align_seqcap_align - WARNING - DROPPED uce-658 from output
+2018-04-24 13:49:56,150 - phyluce_align_seqcap_align - WARNING - DROPPED uce-514 from output
+2018-04-24 13:49:56,193 - phyluce_align_seqcap_align - WARNING - DROPPED uce-639 from output
+2018-04-24 13:49:56,194 - phyluce_align_seqcap_align - WARNING - DROPPED uce-733 from output
+2018-04-24 13:49:56,223 - phyluce_align_seqcap_align - WARNING - DROPPED uce-231 from output
+2018-04-24 13:49:56,226 - phyluce_align_seqcap_align - WARNING - DROPPED uce-541 from output
+2018-04-24 13:49:56,232 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1253 from output
+2018-04-24 13:49:56,245 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1087 from output
+2018-04-24 13:49:56,265 - phyluce_align_seqcap_align - INFO - ============== Completed phyluce_align_seqcap_align =============
+
+```
+
+
+
+Get summary stats
+```{bash, evaluate=F}
+phyluce_align_get_align_summary_data \
+    --alignments ./sebgoo/alignments \
+    --cores 4 \
+    --log-path log
+    
+    
+2018-04-24 13:52:31,863 - phyluce_align_get_align_summary_data - INFO - ========= Starting phyluce_align_get_align_summary_data =========
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Version: 1.5.0
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Argument --alignments: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/sebgoo/alignments
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Argument --cores: 4
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Argument --input_format: nexus
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Argument --log_path: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/log
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Argument --show_taxon_counts: False
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Argument --verbosity: INFO
+2018-04-24 13:52:31,882 - phyluce_align_get_align_summary_data - INFO - Getting alignment files
+2018-04-24 13:52:31,885 - phyluce_align_get_align_summary_data - INFO - Computing summary statistics using 4 cores
+2018-04-24 13:52:32,146 - phyluce_align_get_align_summary_data - INFO - ----------------------- Alignment summary -----------------------
+2018-04-24 13:52:32,147 - phyluce_align_get_align_summary_data - INFO - [Alignments] loci:	476
+2018-04-24 13:52:32,147 - phyluce_align_get_align_summary_data - INFO - [Alignments] length:	57,562
+2018-04-24 13:52:32,147 - phyluce_align_get_align_summary_data - INFO - [Alignments] mean:	120.93
+2018-04-24 13:52:32,147 - phyluce_align_get_align_summary_data - INFO - [Alignments] 95% CI:	3.17
+2018-04-24 13:52:32,147 - phyluce_align_get_align_summary_data - INFO - [Alignments] min:	51
+2018-04-24 13:52:32,147 - phyluce_align_get_align_summary_data - INFO - [Alignments] max:	369
+2018-04-24 13:52:32,148 - phyluce_align_get_align_summary_data - INFO - ------------------------- Taxon summary -------------------------
+2018-04-24 13:52:32,148 - phyluce_align_get_align_summary_data - INFO - [Taxa] mean:		8.32
+2018-04-24 13:52:32,148 - phyluce_align_get_align_summary_data - INFO - [Taxa] 95% CI:	0.20
+2018-04-24 13:52:32,148 - phyluce_align_get_align_summary_data - INFO - [Taxa] min:		3
+2018-04-24 13:52:32,148 - phyluce_align_get_align_summary_data - INFO - [Taxa] max:		17
+2018-04-24 13:52:32,148 - phyluce_align_get_align_summary_data - INFO - ----------------- Missing data from trim summary ----------------
+2018-04-24 13:52:32,149 - phyluce_align_get_align_summary_data - INFO - [Missing] mean:	9.69
+2018-04-24 13:52:32,149 - phyluce_align_get_align_summary_data - INFO - [Missing] 95% CI:	0.35
+2018-04-24 13:52:32,149 - phyluce_align_get_align_summary_data - INFO - [Missing] min:	0.00
+2018-04-24 13:52:32,149 - phyluce_align_get_align_summary_data - INFO - [Missing] max:	27.60
+2018-04-24 13:52:32,154 - phyluce_align_get_align_summary_data - INFO - -------------------- Character count summary --------------------
+2018-04-24 13:52:32,154 - phyluce_align_get_align_summary_data - INFO - [All characters]	468,404
+2018-04-24 13:52:32,154 - phyluce_align_get_align_summary_data - INFO - [Nucleotides]		416,553
+2018-04-24 13:52:32,155 - phyluce_align_get_align_summary_data - INFO - ---------------- Data matrix completeness summary ---------------
+2018-04-24 13:52:32,155 - phyluce_align_get_align_summary_data - INFO - [Matrix 50%]		219 alignments
+2018-04-24 13:52:32,155 - phyluce_align_get_align_summary_data - INFO - [Matrix 55%]		149 alignments
+2018-04-24 13:52:32,155 - phyluce_align_get_align_summary_data - INFO - [Matrix 60%]		81 alignments
+2018-04-24 13:52:32,155 - phyluce_align_get_align_summary_data - INFO - [Matrix 65%]		81 alignments
+2018-04-24 13:52:32,155 - phyluce_align_get_align_summary_data - INFO - [Matrix 70%]		35 alignments
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Matrix 75%]		13 alignments
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Matrix 80%]		5 alignments
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Matrix 85%]		4 alignments
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Matrix 90%]		3 alignments
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Matrix 95%]		3 alignments
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - ------------------------ Character counts -----------------------
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Characters] '-' is present 5,425 times
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Characters] '?' is present 46,426 times
+2018-04-24 13:52:32,156 - phyluce_align_get_align_summary_data - INFO - [Characters] 'A' is present 113,291 times
+2018-04-24 13:52:32,157 - phyluce_align_get_align_summary_data - INFO - [Characters] 'C' is present 94,786 times
+2018-04-24 13:52:32,157 - phyluce_align_get_align_summary_data - INFO - [Characters] 'G' is present 93,462 times
+2018-04-24 13:52:32,157 - phyluce_align_get_align_summary_data - INFO - [Characters] 'T' is present 115,014 times
+2018-04-24 13:52:32,157 - phyluce_align_get_align_summary_data - INFO - ========= Completed phyluce_align_get_align_summary_data ========
+
+
+```
+
+Create consensus sequences of all alignments in Geneious
+
+Map reads to fasta
+```{bash, evaluate=F}
+phyluce_snp_bwa_align \
+    --config ./sebgoo/sebgoo_phasing_conf.txt \
+    --output ./sebgoo/mapping \
+    --subfolder split-adapter-quality-trimmed \
+    --log-path ./sebgoo/bwa_log \
+    --cores 4
+    
+    
+    
+(phyluce) M053-303-26932:mapping2 cran5048$ mkdir bams
+(phyluce) M053-303-26932:mapping2 cran5048$ find . -name "*.bam" -exec cp {} ./bams \;
+(phyluce) M053-303-26932:mapping2 cran5048$ cd bams
+
+for bam in *.bam
+do
+samtools index $bam
+done
+
+samtools faidx ../../Contigs_consensus.fasta
+
+(phyluce) M053-303-26932:bams cran5048$ samtools mpileup -uf ../../contigs_consensus.fasta *.bam | bcftools view -bvcgI  - > var.raw.bcf
+[mpileup] 17 samples in 17 input files
+<mpileup> Set max per-file depth to 470
+[afs] 0:1401.204 1:36.449 2:24.606 3:16.974 4:12.449 5:9.728 6:7.988 7:6.800 8:5.942 9:5.289 10:4.767 11:4.334 12:3.971 13:3.672 14:3.424 15:3.209 16:3.007 17:2.797 18:2.575 19:2.346 20:2.124 21:1.923 22:1.751 23:1.609 24:1.497 25:1.412 26:1.354 27:1.326 28:1.333 29:1.385 30:1.501 31:1.721 32:2.134 33:2.923 34:4.475
+
+
+ bcftools view var.raw.bcf | vcfutils.pl varFilter -d5 -Q30 -D100 > var.flt4.vcf
+ 
+ 7 SNPS
+```
+
+## Embiotica jacksoni
+11. Extract all the matching data into a FASTA
+```{bash, evaluate=F}
+phyluce_assembly_get_fastas_from_match_counts \
+    --contigs /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/assembly_k65/contigs/ \
+    --locus-db /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/FindUCE_k65/probe.matches.sqlite \
+    --match-count-output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/embjac_dataset1_conf.txt \
+    --incomplete-matrix /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/embjac_dataset1.incomplete\
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/embjac_dataset1.fasta
+    
+```
+
+Align the FASTA Reads
+```{bash, evaluate=F}
+
+phyluce_align_seqcap_align \
+    --fasta /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/embjac_dataset1.fasta \
+    --output /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/alignments \
+    --taxa 17 \
+    --aligner mafft \
+    --cores 4 \
+    --proportion 0.75 \
+    --incomplete-matrix \
+    --max-divergence 0.03 \
+    --min-length 50
+    
+2018-04-25 13:54:37,378 - phyluce_align_seqcap_align - INFO - ============== Starting phyluce_align_seqcap_align ==============
+2018-04-25 13:54:37,378 - phyluce_align_seqcap_align - INFO - Version: 1.5.0
+2018-04-25 13:54:37,378 - phyluce_align_seqcap_align - INFO - Argument --aligner: mafft
+2018-04-25 13:54:37,378 - phyluce_align_seqcap_align - INFO - Argument --ambiguous: False
+2018-04-25 13:54:37,378 - phyluce_align_seqcap_align - INFO - Argument --cores: 4
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --fasta: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/embjac_dataset1.fasta
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --log_path: None
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --max_divergence: 0.03
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --min_length: 50
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --no_trim: False
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --notstrict: True
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --output: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/alignments
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --output_format: nexus
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --proportion: 0.75
+2018-04-25 13:54:37,379 - phyluce_align_seqcap_align - INFO - Argument --taxa: 17
+2018-04-25 13:54:37,380 - phyluce_align_seqcap_align - INFO - Argument --threshold: 0.65
+2018-04-25 13:54:37,380 - phyluce_align_seqcap_align - INFO - Argument --verbosity: INFO
+2018-04-25 13:54:37,380 - phyluce_align_seqcap_align - INFO - Argument --window: 20
+2018-04-25 13:54:37,380 - phyluce_align_seqcap_align - INFO - Building the locus dictionary
+2018-04-25 13:54:37,380 - phyluce_align_seqcap_align - INFO - Removing ALL sequences with ambiguous bases...
+2018-04-25 13:54:38,069 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-372. Too few taxa (N < 3).
+2018-04-25 13:54:38,069 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-270. Too few taxa (N < 3).
+2018-04-25 13:54:38,069 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-975. Too few taxa (N < 3).
+2018-04-25 13:54:38,069 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-245. Too few taxa (N < 3).
+2018-04-25 13:54:38,069 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-249. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-881. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-864. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-756. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-1238. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-408. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-4. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-695. Too few taxa (N < 3).
+2018-04-25 13:54:38,070 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-1316. Too few taxa (N < 3).
+2018-04-25 13:54:38,071 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-410. Too few taxa (N < 3).
+2018-04-25 13:54:38,071 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-1001. Too few taxa (N < 3).
+2018-04-25 13:54:38,071 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-157. Too few taxa (N < 3).
+2018-04-25 13:54:38,071 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-1266. Too few taxa (N < 3).
+2018-04-25 13:54:38,071 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-1046. Too few taxa (N < 3).
+2018-04-25 13:54:38,071 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-427. Too few taxa (N < 3).
+2018-04-25 13:54:38,071 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-63. Too few taxa (N < 3).
+2018-04-25 13:54:38,072 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-67. Too few taxa (N < 3).
+2018-04-25 13:54:38,072 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-149. Too few taxa (N < 3).
+2018-04-25 13:54:38,072 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-288. Too few taxa (N < 3).
+2018-04-25 13:54:38,072 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-692. Too few taxa (N < 3).
+2018-04-25 13:54:38,072 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-780. Too few taxa (N < 3).
+2018-04-25 13:54:38,072 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-233. Too few taxa (N < 3).
+2018-04-25 13:54:38,072 - phyluce_align_seqcap_align - WARNING - DROPPED locus uce-113. Too few taxa (N < 3).
+2018-04-25 13:54:38,075 - phyluce_align_seqcap_align - INFO - Aligning with MAFFT
+2018-04-25 13:54:38,075 - phyluce_align_seqcap_align - INFO - Alignment begins. 'X' indicates dropped alignments (these are reported after alignment)
+.........................X....X.....X...................X...............X.......X................X......................................................X.........X..............X..........................................................................X.......................................X.........................................................................................................X...............................X...................................X...
+2018-04-25 13:55:45,151 - phyluce_align_seqcap_align - INFO - Alignment ends
+2018-04-25 13:55:45,151 - phyluce_align_seqcap_align - INFO - Writing output files
+2018-04-25 13:55:45,193 - phyluce_align_seqcap_align - WARNING - DROPPED uce-852 from output
+2018-04-25 13:55:45,194 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1147 from output
+2018-04-25 13:55:45,196 - phyluce_align_seqcap_align - WARNING - DROPPED uce-727 from output
+2018-04-25 13:55:45,216 - phyluce_align_seqcap_align - WARNING - DROPPED uce-574 from output
+2018-04-25 13:55:45,228 - phyluce_align_seqcap_align - WARNING - DROPPED uce-99 from output
+2018-04-25 13:55:45,229 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1188 from output
+2018-04-25 13:55:45,352 - phyluce_align_seqcap_align - WARNING - DROPPED uce-752 from output
+2018-04-25 13:55:45,476 - phyluce_align_seqcap_align - WARNING - DROPPED uce-47 from output
+2018-04-25 13:55:45,590 - phyluce_align_seqcap_align - WARNING - DROPPED uce-668 from output
+2018-04-25 13:55:45,591 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1115 from output
+2018-04-25 13:55:45,717 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1129 from output
+2018-04-25 13:55:45,841 - phyluce_align_seqcap_align - WARNING - DROPPED uce-904 from output
+2018-04-25 13:55:45,881 - phyluce_align_seqcap_align - WARNING - DROPPED uce-1167 from output
+2018-04-25 13:55:45,886 - phyluce_align_seqcap_align - WARNING - DROPPED uce-733 from output
+2018-04-25 13:55:45,932 - phyluce_align_seqcap_align - WARNING - DROPPED uce-161 from output
+2018-04-25 13:55:45,945 - phyluce_align_seqcap_align - INFO - ============== Completed phyluce_align_seqcap_align =============
+
+```
+
+
+
+Get summary stats
+```{bash, evaluate=F}
+phyluce_align_get_align_summary_data \
+    --alignments ./embjac/alignments \
+    --cores 4 \
+    --log-path log
+    
+    
+2018-04-25 13:57:09,292 - phyluce_align_get_align_summary_data - INFO - ========= Starting phyluce_align_get_align_summary_data =========
+2018-04-25 13:57:09,299 - phyluce_align_get_align_summary_data - INFO - Version: 1.5.0
+2018-04-25 13:57:09,300 - phyluce_align_get_align_summary_data - INFO - Argument --alignments: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/embjac/alignments
+2018-04-25 13:57:09,300 - phyluce_align_get_align_summary_data - INFO - Argument --cores: 4
+2018-04-25 13:57:09,300 - phyluce_align_get_align_summary_data - INFO - Argument --input_format: nexus
+2018-04-25 13:57:09,300 - phyluce_align_get_align_summary_data - INFO - Argument --log_path: /Users/cran5048/BaseSpace/UCE_Fish_2/phyluce/log
+2018-04-25 13:57:09,300 - phyluce_align_get_align_summary_data - INFO - Argument --show_taxon_counts: False
+2018-04-25 13:57:09,300 - phyluce_align_get_align_summary_data - INFO - Argument --verbosity: INFO
+2018-04-25 13:57:09,300 - phyluce_align_get_align_summary_data - INFO - Getting alignment files
+2018-04-25 13:57:09,303 - phyluce_align_get_align_summary_data - INFO - Computing summary statistics using 4 cores
+2018-04-25 13:57:09,499 - phyluce_align_get_align_summary_data - INFO - ----------------------- Alignment summary -----------------------
+2018-04-25 13:57:09,500 - phyluce_align_get_align_summary_data - INFO - [Alignments] loci:	455
+2018-04-25 13:57:09,500 - phyluce_align_get_align_summary_data - INFO - [Alignments] length:	55,387
+2018-04-25 13:57:09,500 - phyluce_align_get_align_summary_data - INFO - [Alignments] mean:	121.73
+2018-04-25 13:57:09,500 - phyluce_align_get_align_summary_data - INFO - [Alignments] 95% CI:	5.16
+2018-04-25 13:57:09,500 - phyluce_align_get_align_summary_data - INFO - [Alignments] min:	50
+2018-04-25 13:57:09,500 - phyluce_align_get_align_summary_data - INFO - [Alignments] max:	471
+2018-04-25 13:57:09,501 - phyluce_align_get_align_summary_data - INFO - ------------------------- Taxon summary -------------------------
+2018-04-25 13:57:09,501 - phyluce_align_get_align_summary_data - INFO - [Taxa] mean:		5.90
+2018-04-25 13:57:09,501 - phyluce_align_get_align_summary_data - INFO - [Taxa] 95% CI:	0.19
+2018-04-25 13:57:09,501 - phyluce_align_get_align_summary_data - INFO - [Taxa] min:		3
+2018-04-25 13:57:09,501 - phyluce_align_get_align_summary_data - INFO - [Taxa] max:		13
+2018-04-25 13:57:09,502 - phyluce_align_get_align_summary_data - INFO - ----------------- Missing data from trim summary ----------------
+2018-04-25 13:57:09,502 - phyluce_align_get_align_summary_data - INFO - [Missing] mean:	9.63
+2018-04-25 13:57:09,502 - phyluce_align_get_align_summary_data - INFO - [Missing] 95% CI:	0.51
+2018-04-25 13:57:09,502 - phyluce_align_get_align_summary_data - INFO - [Missing] min:	0.65
+2018-04-25 13:57:09,502 - phyluce_align_get_align_summary_data - INFO - [Missing] max:	28.80
+2018-04-25 13:57:09,507 - phyluce_align_get_align_summary_data - INFO - -------------------- Character count summary --------------------
+2018-04-25 13:57:09,507 - phyluce_align_get_align_summary_data - INFO - [All characters]	308,871
+2018-04-25 13:57:09,507 - phyluce_align_get_align_summary_data - INFO - [Nucleotides]		273,760
+2018-04-25 13:57:09,507 - phyluce_align_get_align_summary_data - INFO - ---------------- Data matrix completeness summary ---------------
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 50%]		155 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 55%]		100 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 60%]		100 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 65%]		55 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 70%]		55 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 75%]		31 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 80%]		15 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 85%]		15 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 90%]		3 alignments
+2018-04-25 13:57:09,508 - phyluce_align_get_align_summary_data - INFO - [Matrix 95%]		1 alignments
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - ------------------------ Character counts -----------------------
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - [Characters] '-' is present 3,859 times
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - [Characters] '?' is present 31,252 times
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - [Characters] 'A' is present 74,274 times
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - [Characters] 'C' is present 63,087 times
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - [Characters] 'G' is present 61,946 times
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - [Characters] 'T' is present 74,453 times
+2018-04-25 13:57:09,509 - phyluce_align_get_align_summary_data - INFO - ========= Completed phyluce_align_get_align_summary_data ========
+
+```
+
+Create consensus sequences of all alignments in Geneious
+
+Map reads to fasta
+```{bash, evaluate=F}
+phyluce_snp_bwa_align \
+    --config ./embjac/embjac_phasing_conf.txt \
+    --output ./embjac/mapping \
+    --subfolder split-adapter-quality-trimmed \
+    --log-path ./embjac/bwa_log \
+    --cores 4
+    
+    
+    
+(phyluce) M053-303-26932:mapping2 cran5048$ mkdir bams
+(phyluce) M053-303-26932:mapping2 cran5048$ find . -name "*.bam" -exec cp {} ./bams \;
+(phyluce) M053-303-26932:mapping2 cran5048$ cd bams
+
+for bam in *.bam
+do
+samtools index $bam
+done
+
+samtools faidx ../../contigs_consensus.fasta
+
+(phyluce) M053-303-26932:bams cran5048$ samtools mpileup -uf ../../contigs_consensus.fasta *.bam | bcftools view -bvcgI  - > var.raw.bcf
+[mpileup] 17 samples in 17 input files
+<mpileup> Set max per-file depth to 470
+[afs] 0:1401.204 1:36.449 2:24.606 3:16.974 4:12.449 5:9.728 6:7.988 7:6.800 8:5.942 9:5.289 10:4.767 11:4.334 12:3.971 13:3.672 14:3.424 15:3.209 16:3.007 17:2.797 18:2.575 19:2.346 20:2.124 21:1.923 22:1.751 23:1.609 24:1.497 25:1.412 26:1.354 27:1.326 28:1.333 29:1.385 30:1.501 31:1.721 32:2.134 33:2.923 34:4.475
+
+
+ bcftools view var.raw.bcf | vcfutils.pl varFilter -d5 -Q30 -D100 > var.flt4.vcf
+ 
+ 11 SNPS
+```
+
+ 
+ 
